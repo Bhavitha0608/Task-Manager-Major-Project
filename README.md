@@ -4,7 +4,7 @@ A complete task management web application built with the MERN stack (MongoDB, E
 
 ## 🚀 Live Demo
 
-- **Frontend:** [[https://task-manager-frontend.vercel.app](https://task-manager-frontend.vercel.app)](https://frontend-jkzf4e8sk-jampanibhavitha06-6427s-projects.vercel.app/)
+- **Frontend:** [https://frontend-jkzf4e8sk-jampanibhavitha06-6427s-projects.vercel.app](https://frontend-jkzf4e8sk-jampanibhavitha06-6427s-projects.vercel.app)
 - **Backend API:** [https://task-manager-major-project.onrender.com](https://task-manager-major-project.onrender.com)
 - **Health Check:** [https://task-manager-major-project.onrender.com/health](https://task-manager-major-project.onrender.com/health)
 
