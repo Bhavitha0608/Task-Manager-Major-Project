@@ -1,4 +1,5 @@
-﻿import express from "express";
+﻿// backend/src/index.js
+import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
@@ -7,30 +8,25 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Health check
-app.get("/health", (req, res) => {
-  res.json({ status: "OK", message: "Task Manager API is running!" });
-});
-
-// Test endpoints
-app.get("/api/test", (req, res) => {
-  res.json({ message: "API is working!" });
-});
-
-app.post("/api/test", (req, res) => {
-  res.json({ message: "POST request received!", data: req.body });
-});
-
-// In-memory storage
+// --- In-Memory "Database" (for testing) ---
+// This replaces MongoDB for now, so your app works immediately.
 let users = [];
 let tasks = [];
 let taskId = 1;
 let userId = 1;
 
-// Register
+// --- Routes ---
+
+// 1. Health Check
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", message: "Task Manager API is running!" });
+});
+
+// 2. Register
 app.post("/api/auth/register", (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
@@ -49,7 +45,7 @@ app.post("/api/auth/register", (req, res) => {
   });
 });
 
-// Login
+// 3. Login
 app.post("/api/auth/login", (req, res) => {
   const { email, password } = req.body;
   const user = users.find(u => u.email === email && u.password === password);
@@ -64,7 +60,7 @@ app.post("/api/auth/login", (req, res) => {
   });
 });
 
-// Get tasks
+// 4. Get Tasks (Protected - requires token)
 app.get("/api/tasks", (req, res) => {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith("Bearer ")) {
@@ -73,7 +69,7 @@ app.get("/api/tasks", (req, res) => {
   res.json(tasks);
 });
 
-// Create task
+// 5. Create Task (Protected - requires token)
 app.post("/api/tasks", (req, res) => {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith("Bearer ")) {
@@ -96,22 +92,7 @@ app.post("/api/tasks", (req, res) => {
   res.status(201).json(task);
 });
 
-// Delete task
-app.delete("/api/tasks/:id", (req, res) => {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Not authorized" });
-  }
-  const id = parseInt(req.params.id);
-  const index = tasks.findIndex(t => t._id === id);
-  if (index === -1) {
-    return res.status(404).json({ message: "Task not found" });
-  }
-  tasks.splice(index, 1);
-  res.json({ message: "Task removed" });
-});
-
-// Toggle task status
+// 6. Toggle Task Status (Protected - requires token)
 app.patch("/api/tasks/:id/toggle", (req, res) => {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith("Bearer ")) {
@@ -126,7 +107,22 @@ app.patch("/api/tasks/:id/toggle", (req, res) => {
   res.json(task);
 });
 
-// Get stats
+// 7. Delete Task (Protected - requires token)
+app.delete("/api/tasks/:id", (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Not authorized" });
+  }
+  const id = parseInt(req.params.id);
+  const index = tasks.findIndex(t => t._id === id);
+  if (index === -1) {
+    return res.status(404).json({ message: "Task not found" });
+  }
+  tasks.splice(index, 1);
+  res.json({ message: "Task removed" });
+});
+
+// 8. Get Task Stats (Protected - requires token)
 app.get("/api/tasks/stats", (req, res) => {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith("Bearer ")) {
@@ -143,6 +139,7 @@ app.get("/api/tasks/stats", (req, res) => {
   });
 });
 
+// Start Server
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📝 http://localhost:${PORT}/health`);
